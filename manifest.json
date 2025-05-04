@@ -1,0 +1,14 @@
+{
+  "manifest_version": 3,
+  "name": "Giá vàng SJC",
+  "version": "1.0",
+  "description": "Thông tin giá vàng mới nhất từ Công ty vàng bạc đá quí Sài Gòn SJC",
+  "permissions": [],
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "icons": {
+    "48": "icon48.png",
+    "128": "icon128.png"
+  }
+}

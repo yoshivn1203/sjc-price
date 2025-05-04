@@ -1,0 +1,124 @@
+<script type="text/javascript">
+  var gk_isXlsx = false;
+  var gk_xlsxFileLookup = {};
+  var gk_fileData = {};
+  function filledCell(cell) {
+    return cell !== '' && cell != null;
+  }
+  function loadFileData(filename) {
+    if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+      try {
+        var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+        var firstSheetName = workbook.SheetNames[0];
+        var worksheet = workbook.Sheets[firstSheetName];
+
+        // Convert sheet to JSON to filter blank rows
+        var jsonData = XLSX.utils.sheet_to_json(worksheet, {
+          header: 1,
+          blankrows: false,
+          defval: ''
+        });
+        // Filter out blank rows (rows where all cells are empty, null, or undefined)
+        var filteredData = jsonData.filter((row) => row.some(filledCell));
+
+        // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+        var headerRowIndex = filteredData.findIndex(
+          (row, index) =>
+            row.filter(filledCell).length >=
+            filteredData[index + 1]?.filter(filledCell).length
+        );
+        // Fallback
+        if (headerRowIndex === -1 || headerRowIndex > 25) {
+          headerRowIndex = 0;
+        }
+
+        // Convert filtered JSON back to CSV
+        var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+        csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+        return csv;
+      } catch (e) {
+        console.error(e);
+        return '';
+      }
+    }
+    return gk_fileData[filename] || '';
+  }
+</script>
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Giá vàng SJC</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <div id="container">
+      <h2 class="main-header">
+        <img
+          src="icon128.png"
+          alt="Gold Bar Icon"
+          style="height: 20px; width: 20px; flex-shrink: 0"
+        />
+        GIÁ VÀNG SJC
+      </h2>
+      <div id="spinner" style="display: none">
+        <div class="loader"></div>
+      </div>
+      <table id="price-table">
+        <thead>
+          <tr>
+            <th>Loại vàng</th>
+            <th>Mua vào (VND)</th>
+            <th>Bán ra (VND)</th>
+          </tr>
+        </thead>
+        <tbody id="price-body"></tbody>
+      </table>
+      <div id="error" style="display: none"></div>
+
+      <div
+        id="last-updated"
+        style="
+          text-align: left;
+          margin-top: 6px;
+          font-size: 12px;
+          font-weight: bold;
+        "
+      ></div>
+      <hr style="border: none; border-top: 1px solid #e9e9e9" />
+      <div
+        id="footer"
+        style="
+          font-size: 10px;
+          font-weight: bold;
+          display: flex;
+          justify-content: space-between;
+          margin-bottom: 6px;
+        "
+      >
+        <span>
+          Report an issue?
+          <a
+            href="https://hightech-st.com/contact-us"
+            target="_blank"
+            id="hightech-link"
+            style="color: #007bff; text-decoration: none"
+          >
+            Contact Us</a
+          >
+        </span>
+        <span
+          >Powered by
+          <a
+            href="https://hightech-st.com"
+            target="_blank"
+            id="hightech-link"
+            style="color: #007bff; text-decoration: none"
+            >Hightech</a
+          ></span
+        >
+      </div>
+    </div>
+    <script src="popup.js"></script>
+  </body>
+</html>
