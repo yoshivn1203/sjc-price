@@ -120,3 +120,51 @@ tr:hover {
   justify-content: center;
   gap: 4px;
 }
+
+/* "Mua vào" column: bold and green */
+#price-table td:nth-child(2) {
+  font-weight: bold;
+  color: #c0392b; /* a nice green */
+}
+
+/* "Bán ra" column: bold and red */
+#price-table td:nth-child(3) {
+  font-weight: bold;
+  color: #1a7f37; /* a nice red */
+}
+
+/* Style for select boxes */
+#gold-type-select,
+#date-range-select {
+  padding: 2px 4px;
+  border-radius: 6px;
+  border: 1px solid #d0a448;
+  background: #fffbe6;
+  font-size: 13px;
+  color: #333;
+  outline: none;
+  transition: border-color 0.2s;
+  margin: 0 4px;
+}
+
+#gold-type-select:focus,
+#date-range-select:focus {
+  background: #fffde7;
+}
+
+#back-to-table {
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: none;
+  background: #d0a448;
+  color: #fff;
+  font-size: 12px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+#back-to-table:hover,
+#back-to-table:focus {
+  background: #b38a2e;
+  outline: none;
+}

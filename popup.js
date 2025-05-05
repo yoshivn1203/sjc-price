@@ -166,8 +166,8 @@ function drawGoldChart(goldData) {
         {
           label: 'Giá Mua',
           data: buyValues,
-          borderColor: 'red',
-          backgroundColor: 'red',
+          borderColor: '#c0392b',
+          backgroundColor: '#c0392b',
           fill: false,
           tension: 0.2,
           pointRadius: 2,
@@ -176,8 +176,8 @@ function drawGoldChart(goldData) {
         {
           label: 'Giá Bán',
           data: sellValues,
-          borderColor: 'green',
-          backgroundColor: 'green',
+          borderColor: '#1a7f37',
+          backgroundColor: '#1a7f37',
           fill: false,
           tension: 0.2,
           pointRadius: 2,
