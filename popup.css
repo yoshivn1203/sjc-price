@@ -118,7 +118,7 @@ tr:hover {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 4px;
+  gap: 6px;
 }
 
 /* "Mua vào" column: bold and green */
