@@ -74,51 +74,103 @@
         </thead>
         <tbody id="price-body"></tbody>
       </table>
-      <div id="error" style="display: none"></div>
+
+      <div id="chart-section" style="display: none">
+        <button id="back-to-table">← Quay lại</button>
+        <div style="margin-top: 10px">
+          <h2>Biểu đồ giá vàng SJC 1L, 10L, 1kg</h2>
+
+          <div style="margin-top: 20px">
+            <label for="gold-type-select" style="font-size: 13px"
+              >Chọn khu vực:
+            </label>
+            <select id="gold-type-select" style="font-size: 13px">
+              <option value="1">TP Hồ Chí Minh</option>
+              <option value="2">Miền Bắc</option>
+              <option value="188">Miền Trung</option>
+            </select>
+            &nbsp;|&nbsp;
+            <label for="date-range-select" style="font-size: 13px"
+              >Chọn khoảng thời gian:
+            </label>
+            <select id="date-range-select" style="font-size: 13px">
+              <option value="7">7 ngày gần đây</option>
+              <option value="30">30 ngày gần đây</option>
+            </select>
+          </div>
+        </div>
+        <div style="height: 300px; max-width: 100%; margin-top: 20px">
+          <canvas
+            id="goldChart"
+            width="580"
+            height="300"
+            style="margin: 0 auto; display: block; max-width: 100%"
+          ></canvas>
+        </div>
+      </div>
 
       <div
         id="last-updated"
         style="
           text-align: left;
-          margin-top: 6px;
+          margin-top: 16px;
           font-size: 12px;
           font-weight: bold;
         "
       ></div>
-      <hr style="border: none; border-top: 1px solid #e9e9e9" />
-      <div
-        id="footer"
-        style="
-          font-size: 10px;
-          font-weight: bold;
-          display: flex;
-          justify-content: space-between;
-          margin-bottom: 6px;
-        "
-      >
-        <span>
-          Report an issue?
-          <a
-            href="https://hightech-st.com/contact-us"
-            target="_blank"
-            id="hightech-link"
-            style="color: #007bff; text-decoration: none"
-          >
-            Contact Us</a
-          >
-        </span>
-        <span
-          >Powered by
-          <a
-            href="https://hightech-st.com"
-            target="_blank"
-            id="hightech-link"
-            style="color: #007bff; text-decoration: none"
-            >Hightech</a
-          ></span
+
+      <div style="text-align: center; margin-top: 10px">
+        <a
+          href="#"
+          id="show-chart-link"
+          style="color: #007bff; cursor: pointer; font-size: 13px"
+          >Xem biểu đồ giá vàng</a
         >
       </div>
+
+      <div id="error" style="display: none"></div>
+      <div id="footer">
+        <hr
+          style="
+            border: none;
+            border-top: 1px solid #e9e9e9;
+            margin: 12px 0 6px 0;
+          "
+        />
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            font-size: 10px;
+            font-weight: bold;
+            margin-bottom: 6px;
+          "
+        >
+          <span>
+            Report an issue?
+            <a
+              href="https://hightech-st.com/contact-us"
+              target="_blank"
+              id="hightech-link"
+              style="color: #007bff; text-decoration: none"
+            >
+              Contact Us</a
+            >
+          </span>
+          <span
+            >Powered by
+            <a
+              href="https://hightech-st.com"
+              target="_blank"
+              id="hightech-link"
+              style="color: #007bff; text-decoration: none"
+              >Hightech</a
+            ></span
+          >
+        </div>
+      </div>
     </div>
+    <script src="chart.js"></script>
     <script src="popup.js"></script>
   </body>
 </html>

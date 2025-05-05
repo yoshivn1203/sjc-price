@@ -3,6 +3,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   const errorDiv = document.getElementById('error');
   const lastUpdated = document.getElementById('last-updated');
   const spinner = document.getElementById('spinner');
+  const showChartLink = document.getElementById('show-chart-link');
+  const chartSection = document.getElementById('chart-section');
+  const backToTableBtn = document.getElementById('back-to-table');
+  const priceTable = document.getElementById('price-table');
+  const dateRangeSelect = document.getElementById('date-range-select');
+  const goldTypeSelect = document.getElementById('gold-type-select');
 
   spinner.style.display = 'block';
 
@@ -57,4 +63,143 @@ document.addEventListener('DOMContentLoaded', async () => {
   } finally {
     spinner.style.display = 'none';
   }
+
+  let goldHistoryData = null; // cache for chart data
+
+  // Helper to format date as dd/MM/yyyy
+  function formatDate(date) {
+    const d = date;
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const year = d.getFullYear();
+    return `${day}/${month}/${year}`;
+  }
+
+  // Fetch and draw chart for selected range and goldPriceId
+  async function updateChartForRangeAndType() {
+    const days = parseInt(dateRangeSelect.value, 10);
+    const goldPriceId = parseInt(goldTypeSelect.value, 10);
+    const toDate = new Date();
+    const fromDate = new Date();
+    fromDate.setDate(toDate.getDate() - (days - 1));
+    const fromDateStr = formatDate(fromDate);
+    const toDateStr = formatDate(toDate);
+
+    const historyData = await fetchGoldPriceHistory(
+      goldPriceId,
+      fromDateStr,
+      toDateStr
+    );
+    goldHistoryData = historyData.data;
+    drawGoldChart(goldHistoryData);
+  }
+
+  // Show chart when link is clicked
+  showChartLink.addEventListener('click', (e) => {
+    e.preventDefault();
+    priceTable.style.display = 'none';
+    showChartLink.style.display = 'none';
+    chartSection.style.display = 'block';
+    // Default to 7 days and HCM
+    dateRangeSelect.value = '7';
+    goldTypeSelect.value = '1';
+    updateChartForRangeAndType();
+  });
+
+  // Back to table when back button is clicked
+  backToTableBtn.addEventListener('click', () => {
+    chartSection.style.display = 'none';
+    priceTable.style.display = '';
+    showChartLink.style.display = '';
+  });
+
+  // Change chart when date range or gold type changes
+  dateRangeSelect.addEventListener('change', updateChartForRangeAndType);
+  goldTypeSelect.addEventListener('change', updateChartForRangeAndType);
 });
+
+async function fetchGoldPriceHistory(goldPriceId, fromDate, toDate) {
+  const response = await fetch(
+    'https://sjc.com.vn/GoldPrice/Services/PriceService.ashx',
+    {
+      method: 'POST',
+      headers: {
+        accept: '*/*',
+        'content-type': 'application/x-www-form-urlencoded; charset=UTF-8'
+      },
+      body: `method=GetGoldPriceHistory&goldPriceId=${goldPriceId}&fromDate=${encodeURIComponent(
+        fromDate
+      )}&toDate=${encodeURIComponent(toDate)}`
+    }
+  );
+  return await response.json();
+}
+
+function drawGoldChart(goldData) {
+  if (!goldData || !goldData.length) return;
+
+  // Sort by date ascending
+  goldData.sort((a, b) => {
+    const aTime = parseInt(a.GroupDate.match(/\d+/)[0], 10);
+    const bTime = parseInt(b.GroupDate.match(/\d+/)[0], 10);
+    return aTime - bTime;
+  });
+
+  const labels = goldData.map((item) => {
+    const timestamp = parseInt(item.GroupDate.match(/\d+/)[0], 10);
+    const date = new Date(timestamp);
+    return date.toLocaleDateString('vi-VN');
+  });
+  const buyValues = goldData.map((item) => item.BuyValue);
+  const sellValues = goldData.map((item) => item.SellValue);
+
+  const ctx = document.getElementById('goldChart').getContext('2d');
+  // Destroy previous chart if exists
+  if (window.goldChartInstance) {
+    window.goldChartInstance.destroy();
+  }
+  window.goldChartInstance = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'Giá Mua',
+          data: buyValues,
+          borderColor: 'red',
+          backgroundColor: 'red',
+          fill: false,
+          tension: 0.2,
+          pointRadius: 2,
+          pointHoverRadius: 4
+        },
+        {
+          label: 'Giá Bán',
+          data: sellValues,
+          borderColor: 'green',
+          backgroundColor: 'green',
+          fill: false,
+          tension: 0.2,
+          pointRadius: 2,
+          pointHoverRadius: 4
+        }
+      ]
+    },
+    options: {
+      responsive: false,
+      plugins: {
+        legend: { display: true }
+      },
+      scales: {
+        y: {
+          beginAtZero: false,
+          ticks: {
+            callback: function (value) {
+              return value.toLocaleString('vi-VN');
+            }
+          }
+        }
+      }
+    }
+  });
+}

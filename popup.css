@@ -1,6 +1,22 @@
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+#container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+#footer {
+  margin-top: auto !important;
+}
+
 body {
   font-family: Arial, sans-serif;
-  margin: 0;
   padding: 0px 8px;
   width: 600px;
 }
@@ -75,6 +91,10 @@ tr:hover {
 
 /* Table header styling */
 
+#price-table {
+  margin-top: 6px;
+}
+
 #price-table thead th {
   font-weight: bold;
   padding: 8px 12px;
@@ -91,7 +111,6 @@ tr:hover {
   font-weight: 800;
   font-size: 14px;
   text-align: center;
-  margin: 0 0 16px 0;
   padding: 8px 0;
   border-bottom: 2px solid #d0a448;
   letter-spacing: 1px;
