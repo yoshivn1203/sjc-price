@@ -177,9 +177,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       const data = await response.json();
       if (data && data.price && usdToVnd) {
         // Convert world price (USD/oz) to VND/lượng
-        // 1 lượng = 1.205653 oz
-        // 1 oz = 0.829429 lượng
-        const ozToLuong = 1 / 1.205653; // 1 oz = 0.829429 lượng
+        const ozToLuong = 0.829429; // 1 oz = 0.829429 lượng
 
         const worldPriceVNDPerLuong = (data.price * usdToVnd) / ozToLuong;
 
@@ -198,12 +196,12 @@ document.addEventListener('DOMContentLoaded', async () => {
           `<b>Giá vàng thế giới (XAU): ${data.price.toLocaleString('en-US', {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2
-          })}</b> USD/oz` +
-          ` ~ <b>${worldPriceVNDPerLuong.toLocaleString('vi-VN', {
+          })}USD/oz` +
+          ` ~ ${worldPriceVNDPerLuong.toLocaleString('vi-VN', {
             maximumFractionDigits: 0
-          })}</b> VND/lượng (Tỷ giá: ${usdToVnd.toLocaleString(
+          })} VND/lượng (Tỷ giá: ${usdToVnd.toLocaleString(
             'vi-VN'
-          )} VND/USD)` +
+          )} VND/USD)</b>` +
           compareText;
       } else {
         worldGoldPriceDiv.textContent =
