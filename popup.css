@@ -168,3 +168,9 @@ tr:hover {
   background: #b38a2e;
   outline: none;
 }
+
+#world-gold-price {
+  margin-top: 10px;
+  font-size: 12px;
+  color: #b38a2e;
+}

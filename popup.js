@@ -9,6 +9,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   const priceTable = document.getElementById('price-table');
   const dateRangeSelect = document.getElementById('date-range-select');
   const goldTypeSelect = document.getElementById('gold-type-select');
+  const worldGoldPriceDiv = document.getElementById('world-gold-price');
+  let sjcSellPrice = null; // To store the SJC sell price for comparison
 
   spinner.style.display = 'block';
 
@@ -61,6 +63,17 @@ document.addEventListener('DOMContentLoaded', async () => {
           tableBody.appendChild(row);
         });
       });
+
+      // Find Hồ Chí Minh, Vàng SJC 1L, 10L, 1KG, Sell price
+      const hcmBranch = data.data.find(
+        (item) =>
+          item.BranchName === 'Hồ Chí Minh' &&
+          item.TypeName.includes('Vàng SJC 1L, 10L, 1KG')
+      );
+      if (hcmBranch) {
+        // Remove commas and parse as number
+        sjcSellPrice = parseFloat(String(hcmBranch.Sell).replace(/,/g, ''));
+      }
     } else {
       throw new Error('API request failed');
     }
@@ -106,6 +119,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     e.preventDefault();
     priceTable.style.display = 'none';
     showChartLink.style.display = 'none';
+    worldGoldPriceDiv.style.display = 'none';
     chartSection.style.display = 'block';
     // Default to 1 day and HCM
     dateRangeSelect.value = '1';
@@ -118,11 +132,89 @@ document.addEventListener('DOMContentLoaded', async () => {
     chartSection.style.display = 'none';
     priceTable.style.display = '';
     showChartLink.style.display = '';
+    worldGoldPriceDiv.style.display = '';
   });
 
   // Change chart when date range or gold type changes
   dateRangeSelect.addEventListener('change', updateChartForRangeAndType);
   goldTypeSelect.addEventListener('change', updateChartForRangeAndType);
+
+  // Fetch the current USD/VND exchange rate from SJC API
+  async function fetchUsdVndRate() {
+    try {
+      const response = await fetch(
+        'https://sjc.com.vn/GoldPrice/Services/PriceService.ashx',
+        {
+          method: 'POST',
+          headers: {
+            accept: '*/*',
+            'content-type': 'application/x-www-form-urlencoded; charset=UTF-8'
+          },
+          body: 'method=GetExchangeRate'
+        }
+      );
+      const data = await response.json();
+      if (data.success && Array.isArray(data.data)) {
+        const usd = data.data.find((item) => item.CurrencyCode === 'USD');
+        if (usd && usd.Sell) {
+          // Remove commas and parse as number
+          return parseFloat(usd.Sell.replace(/,/g, ''));
+        }
+      }
+    } catch (e) {
+      // ignore, will handle error in main function
+    }
+    return null;
+  }
+
+  // Fetch and display world gold price and comparison
+  async function fetchWorldGoldPriceAndCompare() {
+    try {
+      // Fetch exchange rate first
+      const usdToVnd = await fetchUsdVndRate();
+
+      const response = await fetch('https://api.gold-api.com/price/XAU');
+      const data = await response.json();
+      if (data && data.price && usdToVnd) {
+        // Convert world price (USD/oz) to VND/lượng
+        // 1 lượng = 1.205653 oz
+        // 1 oz = 0.829429 lượng
+        const ozToLuong = 1 / 1.205653; // 1 oz = 0.829429 lượng
+
+        const worldPriceVNDPerLuong = (data.price * usdToVnd) / ozToLuong;
+
+        let compareText = '';
+        if (sjcSellPrice) {
+          const percent =
+            ((sjcSellPrice * 1000 - worldPriceVNDPerLuong) /
+              worldPriceVNDPerLuong) *
+            100;
+          compareText = `<br/><b>Chênh lệch so với SJC (HCM, 1L, 10L, 1KG): ${percent.toFixed(
+            2
+          )}%</b>`;
+        }
+
+        worldGoldPriceDiv.innerHTML =
+          `<b>Giá vàng thế giới (XAU): ${data.price.toLocaleString('en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+          })}</b> USD/oz` +
+          ` ~ <b>${worldPriceVNDPerLuong.toLocaleString('vi-VN', {
+            maximumFractionDigits: 0
+          })}</b> VND/lượng (Tỷ giá: ${usdToVnd.toLocaleString(
+            'vi-VN'
+          )} VND/USD)` +
+          compareText;
+      } else {
+        worldGoldPriceDiv.textContent =
+          'Không thể lấy giá vàng thế giới hoặc tỷ giá USD/VND.';
+      }
+    } catch (e) {
+      worldGoldPriceDiv.textContent =
+        'Không thể lấy giá vàng thế giới hoặc tỷ giá USD/VND.';
+    }
+  }
+  fetchWorldGoldPriceAndCompare();
 });
 
 async function fetchGoldPriceHistory(goldPriceId, fromDate, toDate) {
