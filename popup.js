@@ -21,7 +21,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     const data = await response.json();
 
     if (data.success) {
-      lastUpdated.textContent = `Bảng giá được cập nhật lúc: ${new Date().toLocaleString()}, và chỉ mang tính chất tham khảo`;
+      // Manually format: dd/MM/yyyy, HH:mm
+      const now = new Date();
+      const day = String(now.getDate()).padStart(2, '0');
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const year = now.getFullYear();
+      const hour = String(now.getHours()).padStart(2, '0');
+      const minute = String(now.getMinutes()).padStart(2, '0');
+      lastUpdated.textContent = `Bảng giá được cập nhật lúc: ${day}/${month}/${year} ${hour}:${minute}, và chỉ mang tính chất tham khảo`;
 
       tableBody.innerHTML = '';
 
@@ -100,8 +107,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     priceTable.style.display = 'none';
     showChartLink.style.display = 'none';
     chartSection.style.display = 'block';
-    // Default to 7 days and HCM
-    dateRangeSelect.value = '7';
+    // Default to 1 day and HCM
+    dateRangeSelect.value = '1';
     goldTypeSelect.value = '1';
     updateChartForRangeAndType();
   });
@@ -148,7 +155,13 @@ function drawGoldChart(goldData) {
   const labels = goldData.map((item) => {
     const timestamp = parseInt(item.GroupDate.match(/\d+/)[0], 10);
     const date = new Date(timestamp);
-    return date.toLocaleDateString('vi-VN');
+    // Manually format: dd/MM/yyyy, HH:mm
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    const hour = String(date.getHours()).padStart(2, '0');
+    const minute = String(date.getMinutes()).padStart(2, '0');
+    return `${day}/${month}/${year}, ${hour}:${minute}`;
   });
   const buyValues = goldData.map((item) => item.BuyValue);
   const sellValues = goldData.map((item) => item.SellValue);
